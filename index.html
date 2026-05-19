@@ -1,0 +1,1270 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Smart Flood-Control & Power Generation System</title>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  
+  <style>
+    :root {
+      --neon-blue: #0ea5e9;
+      --neon-cyan: #22d3ee;
+      --dark-bg: #030712;
+      --glass-bg: rgba(15, 23, 42, 0.75);
+      --glass-border: rgba(34, 211, 238, 0.15);
+    }
+    
+    body, html, section, footer, header {
+      background-color: var(--dark-bg) !important;
+      color: #f8fafc !important;
+    }
+    
+    header#sec-hero {
+      background-image: radial-gradient(circle at 50% 30%, rgba(14, 165, 233, 0.15), var(--dark-bg) 80%) !important;
+      background-color: var(--dark-bg) !important;
+    }
+    
+    .bg-white, .bg-slate-50, .bg-slate-100, .bg-gradient-to-br, .bg-gradient-to-b {
+      background-color: rgba(15, 23, 42, 0.6) !important;
+      background-image: none !important;
+      color: #f8fafc !important;
+      border-color: rgba(34, 211, 238, 0.1) !important;
+    }
+    
+    body::before {
+      content: ''; 
+      position: fixed; 
+      inset: 0; 
+      z-index: -2;
+      background:
+        linear-gradient(rgba(14, 165, 233, 0.02) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(14, 165, 233, 0.02) 1px, transparent 1px);
+      background-size: 45px 45px; 
+      pointer-events: none;
+    }
+    
+    body::after {
+      content: ''; 
+      position: fixed; 
+      top: 15%; 
+      left: -5vw; 
+      width: 45vw; 
+      height: 45vh;
+      background: radial-gradient(circle, rgba(14,165,233,0.06) 0%, transparent 65%);
+      border-radius: 50%; 
+      pointer-events: none; 
+      z-index: -1;
+      animation: floatingFlare 20s ease-in-out infinite alternate;
+    }
+    
+    @keyframes floatingFlare {
+      0% { transform: translate(0, 0) scale(1); }
+      100% { transform: translate(5vw, 15vh) scale(1.15); }
+    }
+    
+    .text-slate-900, .text-slate-800, h1, h2, h3, h4 {
+      color: #ffffff !important;
+      text-shadow: 0 0 15px rgba(255, 255, 255, 0.15) !important;
+    }
+    .text-slate-700, .text-slate-600, .text-slate-500, .text-slate-400 {
+      color: #cbd5e1 !important;
+    }
+    
+    .x-underline-anim::after { 
+      background: var(--neon-cyan) !important; 
+      box-shadow: 0 0 10px var(--neon-cyan); 
+    }
+    .x-line-draw { 
+      background: linear-gradient(90deg, var(--neon-cyan), transparent) !important; 
+      box-shadow: 0 0 12px var(--neon-cyan); 
+    }
+    
+    @keyframes modalFadeIn {
+      from { opacity: 0; transform: scale(0.97); }
+      to { opacity: 1; transform: scale(1); }
+    }
+    .animate-modal-pop {
+      animation: modalFadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+    
+    .scanner-line {
+      position: absolute; 
+      left: 0; 
+      width: 100%; 
+      height: 2px;
+      background: var(--neon-cyan); 
+      box-shadow: 0 0 20px 4px rgba(34, 211, 238, 0.5);
+      animation: scanPass 4s ease-in-out infinite; 
+      opacity: 0.6; 
+      pointer-events: none; 
+      z-index: 10;
+    }
+    
+    @keyframes scanPass {
+      0% { top: 0%; opacity: 0; }
+      10% { opacity: 1; }
+      90% { opacity: 1; }
+      100% { top: 100%; opacity: 0; }
+    }
+    
+    .sci-fi-scrollbar::-webkit-scrollbar { width: 4px; }
+    .sci-fi-scrollbar::-webkit-scrollbar-track { background: rgba(15,23,42,0.5); }
+    .sci-fi-scrollbar::-webkit-scrollbar-thumb { background: var(--neon-cyan); border-radius: 4px; }
+
+    @keyframes waterFlow {
+      0% { stroke-dashoffset: 40; }
+      100% { stroke-dashoffset: 0; }
+    }
+    .animate-water-flow { animation: waterFlow 1s linear infinite; }
+
+    @keyframes energyFlow {
+      0% { stroke-dashoffset: 20; opacity: 1; }
+      50% { opacity: 0.5; }
+      100% { stroke-dashoffset: 0; opacity: 1; }
+    }
+    .animate-energy-flow { animation: energyFlow 0.5s linear infinite; }
+    
+    @keyframes turbineSpin {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+    .spin-fast {
+      animation: turbineSpin 0.5s linear infinite;
+      transform-origin: 750px 500px;
+    }
+    
+    @keyframes signalPulse {
+      0% { transform: scale(0.8); opacity: 1; }
+      100% { transform: scale(2.5); opacity: 0; }
+    }
+    .signal-wave {
+      animation: signalPulse 1.5s ease-out infinite;
+      transform-origin: center;
+    }
+    
+    * { cursor: none !important; }
+    #x-cursor {
+      position: fixed; width: 10px; height: 10px;
+      background: #3b82f6; border-radius: 50%;
+      pointer-events: none; z-index: 99999999;
+      transform: translate(-50%,-50%);
+      transition: transform 0.05s ease, width 0.2s ease, height 0.2s ease, background 0.2s ease;
+    }
+    #x-cursor-ring {
+      position: fixed; width: 32px; height: 32px;
+      border: 1.5px solid rgba(59,130,246,0.6); border-radius: 50%;
+      pointer-events: none; z-index: 99999998;
+      transform: translate(-50%,-50%);
+      transition: transform 0.12s ease, width 0.2s, height 0.2s, border-color 0.2s;
+    }
+    .cursor-hover #x-cursor { width: 16px; height: 16px; background: #60a5fa; }
+    .cursor-hover #x-cursor-ring { width: 44px; height: 44px; border-color: rgba(96,165,250,0.5); }
+    
+    #x-progress {
+      position: fixed; top: 0; left: 0; height: 3px;
+      background: linear-gradient(90deg, #1d4ed8, #38bdf8, #1d4ed8);
+      background-size: 200% 100%;
+      animation: progressShimmer 2s ease infinite;
+      z-index: 99997; width: 0%;
+      transition: width 0.1s linear;
+    }
+    @keyframes progressShimmer {
+      0% { background-position: 0% 50%; }
+      100% { background-position: 200% 50%; }
+    }
+    
+    #x-story {
+      position: fixed; right: 20px; top: 50%; transform: translateY(-50%);
+      z-index: 1000; display: flex; flex-direction: column; gap: 10px;
+    }
+    .story-dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.3);
+      transition: all 0.3s ease; cursor: pointer !important;
+      position: relative;
+    }
+    .story-dot.active {
+      background: #3b82f6; border-color: #60a5fa;
+      box-shadow: 0 0 10px rgba(59,130,246,0.7);
+    }
+    .story-dot:hover { background: rgba(96,165,250,0.5); }
+    .story-dot-label {
+      position: absolute; right: 20px; top: 50%; transform: translateY(-50%);
+      font-size: 11px; color: rgba(255,255,255,0.7); white-space: nowrap;
+      background: rgba(15,23,42,0.85); padding: 3px 10px; border-radius: 4px;
+      pointer-events: none; opacity: 0; transition: opacity 0.2s ease;
+      font-family: system-ui, sans-serif;
+    }
+    .story-dot:hover .story-dot-label { opacity: 1; }
+    
+    #x-particles {
+      position: fixed; inset: 0;
+      pointer-events: none; z-index: 0;
+      opacity: 0.35;
+    }
+    
+    [data-rev] {
+      opacity: 0;
+      transition: opacity 0.75s cubic-bezier(0.16,1,0.3,1),
+                  transform 0.75s cubic-bezier(0.16,1,0.3,1);
+    }
+    [data-rev="up"]   { transform: translateY(40px); }
+    [data-rev="left"] { transform: translateX(-48px); }
+    [data-rev="right"]{ transform: translateX(48px); }
+    [data-rev="scale"]{ transform: scale(0.88); }
+    [data-rev="fade"] { transform: none; }
+    [data-rev].x-vis  { opacity: 1; transform: none !important; }
+    
+    .x-ripple-wrap { position: relative; overflow: hidden; }
+    .x-ripple {
+      position: absolute; border-radius: 50%;
+      background: rgba(255,255,255,0.35); pointer-events: none;
+      transform: scale(0);
+      animation: rippleOut 0.55s ease forwards;
+    }
+    @keyframes rippleOut {
+      to { transform: scale(4); opacity: 0; }
+    }
+    
+    .x-tilt {
+      transform-style: preserve-3d;
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+      will-change: transform;
+    }
+    
+    .x-section-enter {
+      animation: sectionSlide 0.8s cubic-bezier(0.16,1,0.3,1) forwards;
+    }
+    @keyframes sectionSlide {
+      from { opacity:0; transform: translateY(30px); }
+      to   { opacity:1; transform: none; }
+    }
+    
+    .x-hero-layer { will-change: transform; }
+    
+    .x-counter { display: inline-block; }
+    
+    .x-wave {
+      position: relative; height: 60px; overflow: hidden;
+      pointer-events: none;
+    }
+    .x-wave svg { position: absolute; bottom: 0; width: 100%; }
+    .x-wave path { animation: waveDrift 6s ease-in-out infinite alternate; }
+    @keyframes waveDrift {
+      from { d: path("M0,40 C200,10 400,60 600,35 C800,10 1000,55 1200,30 L1200,60 L0,60 Z"); }
+      to   { d: path("M0,30 C200,55 400,15 600,45 C800,70 1000,20 1200,45 L1200,60 L0,60 Z"); }
+    }
+    
+    .x-glow-num {
+      text-shadow: 0 0 30px rgba(59,130,246,0.4), 0 0 60px rgba(59,130,246,0.15);
+    }
+    
+    .x-stagger > * { opacity: 0; transform: translateY(24px); }
+    .x-stagger.x-vis > *:nth-child(1) { animation: fadeUp 0.6s ease 0.0s forwards; }
+    .x-stagger.x-vis > *:nth-child(2) { animation: fadeUp 0.6s ease 0.1s forwards; }
+    .x-stagger.x-vis > *:nth-child(3) { animation: fadeUp 0.6s ease 0.2s forwards; }
+    .x-stagger.x-vis > *:nth-child(4) { animation: fadeUp 0.6s ease 0.3s forwards; }
+    .x-stagger.x-vis > *:nth-child(5) { animation: fadeUp 0.6s ease 0.4s forwards; }
+    .x-stagger.x-vis > *:nth-child(6) { animation: fadeUp 0.6s ease 0.5s forwards; }
+    @keyframes fadeUp {
+      to { opacity: 1; transform: none; }
+    }
+    
+    .x-underline-anim {
+      position: relative; display: inline-block;
+    }
+    .x-underline-anim::after {
+      content: ''; position: absolute; bottom: -4px; left: 0;
+      height: 3px; width: 0%; background: #3b82f6;
+      transition: width 1s cubic-bezier(0.16,1,0.3,1);
+      border-radius: 2px;
+    }
+    .x-underline-anim.x-vis::after { width: 100%; }
+    
+    @keyframes floatDown {
+      0%, 100% { transform: translateY(0); }
+      50%      { transform: translateY(8px); }
+    }
+    .x-float { animation: floatDown 2s ease-in-out infinite; }
+    
+    .x-line-draw {
+      width: 0; height: 2px; background: linear-gradient(90deg, #3b82f6, transparent);
+      transition: width 1.2s cubic-bezier(0.16,1,0.3,1);
+    }
+    .x-line-draw.x-vis { width: 100%; }
+    
+    @keyframes borderPop {
+      from { border-bottom-width: 0px; }
+      to   { border-bottom-width: 4px; }
+    }
+    .x-border-anim { border-bottom-width: 0 !important; }
+    .x-border-anim.x-vis { animation: borderPop 0.5s ease 0.4s forwards; }
+    
+    #x-scroll-hint {
+      position: fixed; bottom: 32px; left: 50%;
+      transform: translateX(-50%);
+      z-index: 900;
+      opacity: 1; transition: opacity 0.5s ease;
+    }
+    #x-scroll-hint.hidden { opacity: 0; pointer-events: none; }
+    .x-scroll-arrow {
+      display: flex; flex-direction: column; align-items: center; gap: 6px;
+    }
+    .x-scroll-arrow span {
+      font-size: 10px; letter-spacing: 0.15em; text-transform: uppercase;
+      color: rgba(255,255,255,0.5); font-family: system-ui;
+    }
+    .x-arrow-line {
+      width: 1px; height: 40px;
+      background: linear-gradient(to bottom, rgba(96,165,250,0.8), transparent);
+      animation: arrowPulse 1.8s ease-in-out infinite;
+    }
+    @keyframes arrowPulse {
+      0%, 100% { opacity: 1; transform: scaleY(1); }
+      50%      { opacity: 0.2; transform: scaleY(0.5); }
+    }
+    
+    #x-loader {
+      position: fixed; inset: 0; background: #0f172a;
+      z-index: 99999999;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center; gap: 20px;
+      transition: opacity 0.7s ease;
+    }
+    #x-loader.out { opacity: 0; pointer-events: none; }
+    .loader-text {
+      font-family: system-ui; font-weight: 800;
+      font-size: 1.1rem; letter-spacing: 0.2em;
+      color: rgba(255,255,255,0.85); text-transform: uppercase;
+    }
+    .loader-bar-track {
+      width: 200px; height: 2px; background: rgba(255,255,255,0.1);
+    }
+    .loader-bar-fill {
+      height: 100%; background: linear-gradient(90deg, #1d4ed8, #38bdf8);
+      animation: loaderFill 1.4s ease forwards;
+    }
+    @keyframes loaderFill {
+      from { width: 0%; }
+      to   { width: 100%; }
+    }
+    .loader-dot {
+      width: 6px; height: 6px; border-radius: 50%; background: #3b82f6;
+      animation: loaderDots 0.8s ease infinite alternate;
+    }
+    @keyframes loaderDots {
+      from { opacity: 0.3; transform: scale(0.8); }
+      to   { opacity: 1;   transform: scale(1.2); }
+    }
+    
+    .x-tooltip-wrap { position: relative; }
+    .x-tooltip {
+      position: absolute; bottom: calc(100% + 8px); left: 50%;
+      transform: translateX(-50%) translateY(4px);
+      background: rgba(15,23,42,0.95); color: rgba(255,255,255,0.9);
+      font-size: 11px; padding: 5px 10px; border-radius: 4px;
+      white-space: nowrap; pointer-events: none; opacity: 0;
+      transition: opacity 0.2s ease, transform 0.2s ease;
+      font-family: system-ui; border: 1px solid rgba(59,130,246,0.3);
+      z-index: 100;
+    }
+    .x-tooltip-wrap:hover .x-tooltip {
+      opacity: 1; transform: translateX(-50%) translateY(0);
+    }
+    
+    .x-magnetic { transition: transform 0.3s cubic-bezier(0.16,1,0.3,1); }
+  </style>
+</head>
+<body class="bg-slate-950 text-slate-100 font-sans antialiased overflow-x-hidden">
+  
+  <div id="x-loader">
+    <div style="display:flex;flex-direction:column;align-items:center;gap:16px;">
+      <div class="loader-text">Loading System</div>
+      <div class="loader-bar-track"><div class="loader-bar-fill"></div></div>
+      <div style="display:flex;gap:6px;margin-top:4px;">
+        <div class="loader-dot" style="animation-delay:0s"></div>
+        <div class="loader-dot" style="animation-delay:0.15s"></div>
+        <div class="loader-dot" style="animation-delay:0.3s"></div>
+      </div>
+    </div>
+  </div>
+  
+  <div id="x-progress"></div>
+  <div id="x-cursor"></div>
+  <div id="x-cursor-ring"></div>
+  <canvas id="x-particles"></canvas>
+  
+  <div id="x-story"></div>
+  
+  <div id="x-scroll-hint">
+    <div class="x-scroll-arrow">
+      <span>Scroll</span>
+      <div class="x-arrow-line"></div>
+    </div>
+  </div>
+  
+  <div id="root"></div>
+
+  <!-- ================================================================
+       SINGLE React script — App component contains ALL modals & state
+       ================================================================ -->
+  <script type="text/babel">
+    const { useState, useEffect, useRef } = React;
+    
+    const App = () => {
+      const [phase, setPhase] = useState(0);
+      const [isSimulating, setIsSimulating] = useState(false);
+      const [isUnlocked, setIsUnlocked] = useState(false);
+
+      // Modal States
+      const [isBlueprintOpen, setIsBlueprintOpen] = useState(false);
+      const [activeSystemState, setActiveSystemState] = useState(null);
+      const [isImpactPhotoOpen, setIsImpactPhotoOpen] = useState(false);
+
+      //separate zoom/drag state for Blueprint modal
+      const [bpScale, setBpScale] = useState(1);
+      const [bpPos, setBpPos]   = useState({ x: 0, y: 0 });
+      const bpDragging  = useRef(false);
+      const bpStartDrag = useRef({ x: 0, y: 0 });
+
+      // separate zoom/drag state for Impact Photo modal
+      const [ipScale, setIpScale] = useState(1);
+      const [ipPos, setIpPos]     = useState({ x: 0, y: 0 });
+      const ipDragging  = useRef(false);
+      const ipStartDrag = useRef({ x: 0, y: 0 });
+
+      // Accordion States
+      const [openProblem, setOpenProblem] = useState(null);
+      const [openSolution, setOpenSolution] = useState(null);
+      const [openSetup, setOpenSetup] = useState(null);
+      
+      const runSimulation = () => {
+        if (isSimulating) return;
+        setIsSimulating(true);
+        setPhase(0);
+        setTimeout(() => setPhase(1), 1000);
+        setTimeout(() => setPhase(2), 4000);
+        setTimeout(() => setPhase(3), 6000);
+        setTimeout(() => setPhase(4), 8000);
+        setTimeout(() => setIsSimulating(false), 9000);
+      };
+      
+      const resetSimulation = () => { setPhase(0); setIsSimulating(false); };
+      
+      const waterLevelY  = phase === 0 ? 350 : (phase >= 1 ? 220 : 350);
+      const isDanger     = phase >= 2;
+      const isValveOpen  = phase >= 3;
+      const isGenerating = phase >= 4;
+
+      /* ── Blueprint modal helpers ── */
+      const bpZoomIn    = () => setBpScale(p => Math.min(p + 0.25, 3));
+      const bpZoomOut   = () => setBpScale(p => Math.max(p - 0.25, 0.5));
+      const bpZoomReset = () => { setBpScale(1); setBpPos({ x: 0, y: 0 }); };
+      const bpMouseDown = (e) => {
+        bpDragging.current = true;
+        bpStartDrag.current = { x: e.clientX - bpPos.x, y: e.clientY - bpPos.y };
+      };
+      const bpMouseMove = (e) => {
+        if (!bpDragging.current) return;
+        setBpPos({ x: e.clientX - bpStartDrag.current.x, y: e.clientY - bpStartDrag.current.y });
+      };
+      const bpMouseUp = () => { bpDragging.current = false; };
+
+      /* ── Impact Photo modal helpers ── */
+      const ipZoomIn    = () => setIpScale(p => Math.min(p + 0.25, 3));
+      const ipZoomOut   = () => setIpScale(p => Math.max(p - 0.25, 0.5));
+      const ipZoomReset = () => { setIpScale(1); setIpPos({ x: 0, y: 0 }); };
+      const ipMouseDown = (e) => {
+        ipDragging.current = true;
+        ipStartDrag.current = { x: e.clientX - ipPos.x, y: e.clientY - ipPos.y };
+      };
+      const ipMouseMove = (e) => {
+        if (!ipDragging.current) return;
+        setIpPos({ x: e.clientX - ipStartDrag.current.x, y: e.clientY - ipStartDrag.current.y });
+      };
+      const ipMouseUp = () => { ipDragging.current = false; };
+      
+      return (
+        <div className="flex flex-col min-h-screen bg-slate-950 text-slate-100">
+
+          {/* HERO */}
+          <header id="sec-hero" className="relative pt-24 pb-20 px-4 flex flex-col justify-center min-h-screen">
+            <div className="relative z-10 max-w-5xl mx-auto text-center x-hero-layer mt-12">
+              <h2 className="text-cyan-400 font-bold tracking-[0.2em] uppercase text-sm md:text-base mb-4">
+                An invention towards sustainability
+              </h2>
+              <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight mb-6 drop-shadow-lg">
+                PREVENTING <span className="text-cyan-400 x-underline-anim">FLOODS</span>
+              </h1>
+              <p className="text-xl md:text-2xl text-slate-300 mb-12 max-w-3xl mx-auto font-light">
+                Smart Flood-Control Hydropower Barrier System.<br/>
+                Stopping overflows before they become disasters and converting them into renewable energy.
+              </p>
+              <div className="flex flex-col sm:flex-row justify-center items-center gap-6">
+                <button 
+                  onClick={() => document.getElementById('simulation').scrollIntoView({ behavior: 'smooth' })}
+                  className="x-ripple-wrap x-magnetic bg-cyan-600 hover:bg-cyan-500 text-white font-semibold py-4 px-8 rounded-full transition-all hover:scale-105 border border-cyan-400/50 shadow-[0_0_20px_rgba(34,211,238,0.4)]"
+                >
+                  Go to Simulation Section
+                </button>
+              </div>
+            </div>
+          </header>
+          
+          {/* TEAM */}
+          <section id="sec-team" className="py-8 bg-slate-900 text-slate-300 border-b border-slate-800 relative z-20">
+            <div className="max-w-6xl mx-auto px-4 text-center">
+              <h3 className="text-sm font-bold uppercase tracking-widest text-cyan-500 mb-4">Developed By Our Team</h3>
+              {/* FIX: x-stagger must wrap children directly — moved to a div wrapper */}
+              <div className="flex flex-wrap justify-center gap-x-8 gap-y-2 text-lg font-medium x-stagger">
+                <span>Fatih Zahran</span>
+                <span>Noel Alexander Hartono</span>
+                <span>Michael Sahala</span>
+                <span>Ritz Kevin Heryanto</span>
+              </div>
+            </div>
+          </section>
+          
+          {/* WHAT IS OUR SYSTEM */}
+          <section id="sec-what" className="py-20 px-4 bg-slate-950 border-b border-slate-900 relative z-20">
+            <div className="max-w-5xl mx-auto">
+              <div className="text-center mb-12">
+                <h2 className="text-4xl font-extrabold text-white tracking-tight mb-4 x-underline-anim">What is our system?</h2>
+                <div className="h-1.5 w-24 bg-cyan-400 mx-auto rounded-full x-line-draw"></div>
+              </div>
+              <div className="bg-slate-900/40 rounded-3xl p-8 md:p-12 shadow-lg border border-slate-800 flex flex-col md:flex-row items-center gap-8">
+                <div className="flex-1 space-y-6" data-rev="left">
+                  <p className="text-xl leading-relaxed text-slate-300 font-normal">
+                    The water gate barrier is an <span className="text-cyan-400 font-semibold">advanced machine</span> mainly used for siphoning excess amounts of water to prevent floods and recycle it for electricity.
+                  </p>
+                  <p className="text-lg leading-relaxed text-slate-400">
+                    The device works slowly: first, the machine is in a closed state.
+                    When the system detects high amounts of water, it will automatically open to expose an underground pipe which drains the water.
+                    This water is then processed and turned into clean electricity.
+                  </p>
+                </div>
+                <div className="w-full md:w-80 grid grid-cols-2 gap-4 x-stagger" data-rev="right">
+                  {[
+                    { title:'1. Closed State', icon:<path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>, color:'cyan', sub:'Normal operating standby', detail:'The gateway system remains in a fully secured standby status. All hydraulic segments are tightly sealed, preventing any surface water bypass and maintaining normal river flow.' },
+                    { title:'2. Smart Detect', icon:<path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>, color:'red', sub:'Identifies high water levels', detail:'The integrated sensor array continuously monitors hydrostatic pressure and river depth. As soon as the safe threshold is breached, the wireless transmitter immediately relays the activation command.' },
+                    { title:'3. Auto Drain', icon:<path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 1121.21 8H18.5"></path>, color:'sky', sub:'Opens bypass intake pipe', detail:'The automated control valve dynamically activates the subsurface diversion pipes, siphoning excess surface water into the filtration grid.' },
+                    { title:'4. Generation', icon:<path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>, color:'amber', sub:'Converts kinetic flow to power', detail:'The high-velocity subterranean water flow drives the hydraulic turbine-generator, efficiently converting kinetic water energy into clean grid-synchronized electricity.' },
+                  ].map((card, i) => (
+                    <div 
+                      key={i}
+                      className="x-tilt bg-slate-900/60 p-5 rounded-2xl shadow-sm border border-slate-800 text-center flex flex-col items-center relative group cursor-pointer hover:border-cyan-500/50 transition-colors"
+                      onClick={() => setActiveSystemState({ title: card.title, text: card.detail })}
+                    >
+                      <div className={`w-10 h-10 bg-${card.color}-500/10 text-${card.color}-400 rounded-lg flex items-center justify-center mb-3 ${card.color === 'red' ? 'animate-pulse' : ''}`}>
+                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">{card.icon}</svg>
+                      </div>
+                      <h4 className="font-bold text-white text-sm mb-1">{card.title}</h4>
+                      <p className="text-xs text-slate-400">{card.sub}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </section>
+          
+          {/* PROBLEM & SOLUTION */}
+          <section id="sec-problem" className="py-20 px-4 max-w-7xl mx-auto relative z-20">
+            <div className="text-center mb-16">
+              <h2 className="text-4xl font-bold text-white mb-4 x-underline-anim">Why Was This System Created?</h2>
+              <p className="text-lg text-slate-400 max-w-3xl mx-auto">Floods keep happening even though we already have drainage systems. How can we stop the overflow before it becomes a disaster?</p>
+            </div>
+            <div className="grid lg:grid-cols-2 gap-12">
+              {/* PROBLEMS */}
+              <div className="bg-slate-900/40 rounded-2xl shadow-xl overflow-hidden border border-slate-800" data-rev="left">
+                <div className="bg-red-500/20 p-4 text-red-400 font-bold text-xl flex items-center gap-3 border-b border-red-500/20">
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                  THE PROBLEMS
+                </div>
+                <div className="p-8">
+                  <ul className="space-y-4">
+                    {[
+                      { title:'Infrastructure Damage', desc:'Severe damage to homes, roads, and public facilities.', icon:<path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path> },
+                      { title:'Public Safety Danger', desc:'Threatens the lives and safety of the general public.', icon:<path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path> },
+                      { title:'Economic Loss', desc:'Massive financial losses every year due to recurring disasters.', icon:<path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path> }
+                    ].map((item, i) => (
+                      <li key={i} className="flex items-start gap-4 cursor-pointer group" onClick={() => setOpenProblem(openProblem === i ? null : i)}>
+                        <div className="bg-red-500/10 p-3 rounded-lg text-red-400 flex-shrink-0 group-hover:bg-red-500/20 transition-colors">
+                          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">{item.icon}</svg>
+                        </div>
+                        <div className="flex-1 border-b border-slate-800/80 pb-2">
+                          <h4 className="font-bold text-white text-lg flex items-center justify-between group-hover:text-red-400 transition-colors">
+                            {item.title}
+                            <svg className={`w-5 h-5 text-slate-500 transition-transform duration-300 ${openProblem === i ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
+                          </h4>
+                          <div className={`overflow-hidden transition-all duration-500 ease-in-out ${openProblem === i ? 'max-h-40 opacity-100 mt-3' : 'max-h-0 opacity-0'}`}>
+                            <p className="text-slate-400 text-sm pb-2">{item.desc}</p>
+                          </div>
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+              
+              {/* SOLUTIONS */}
+              <div className="bg-slate-900/40 rounded-2xl shadow-xl overflow-hidden border border-slate-800" data-rev="right">
+                <div className="bg-cyan-500/20 p-4 text-cyan-400 font-bold text-xl flex items-center gap-3 border-b border-cyan-500/20">
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                  THE SOLUTION
+                </div>
+                <div className="p-8">
+                  <ul className="space-y-4">
+                    {[
+                      { title:'Multi-Parameter Sensor', desc:'Array Sensors that continuously monitor river pressure and water levels in real-time.', icon:<path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z"></path> },
+                      { title:'Triangular Wedge Flood Barrier', desc:'A strong physical barrier (1m height, 2m base width) to block surface water overflow.', icon:<path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2-2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path> },
+                      { title:'Automated Underground Diversion', desc:'Redirects excess water underground to spin a turbine and generate renewable electricity.', icon:<path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path> }
+                    ].map((item, i) => (
+                      <li key={i} className="flex items-start gap-4 cursor-pointer group" onClick={() => setOpenSolution(openSolution === i ? null : i)}>
+                        <div className="bg-cyan-500/10 p-3 rounded-lg text-cyan-400 flex-shrink-0 group-hover:bg-cyan-500/20 transition-colors">
+                          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">{item.icon}</svg>
+                        </div>
+                        <div className="flex-1 border-b border-slate-800/80 pb-2">
+                          <h4 className="font-bold text-white text-lg flex items-center justify-between group-hover:text-cyan-400 transition-colors">
+                            {item.title}
+                            <svg className={`w-5 h-5 text-slate-500 transition-transform duration-300 ${openSolution === i ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
+                          </h4>
+                          <div className={`overflow-hidden transition-all duration-500 ease-in-out ${openSolution === i ? 'max-h-40 opacity-100 mt-3' : 'max-h-0 opacity-0'}`}>
+                            <p className="text-slate-400 text-sm pb-2">{item.desc}</p>
+                          </div>
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </section>
+          
+          {/* HOW TO SETUP */}
+          <section id="sec-setup" className="py-20 px-4 bg-slate-950 border-t border-b border-slate-900 relative z-20">
+            <div className="max-w-4xl mx-auto">
+              <div className="text-center mb-8">
+                <h2 className="text-4xl font-extrabold text-white tracking-tight mb-4 x-underline-anim">How to Setup Our Machine</h2>
+                <div className="h-1.5 w-24 bg-cyan-400 mx-auto rounded-full mb-6 x-line-draw"></div>
+                <p className="text-lg text-slate-400 max-w-2xl mx-auto mb-6">Follow these standard installation procedures to correctly deploy, configure, and monitor the smart flood-control barrier system.</p>
+                <div className="flex justify-center mt-6 mb-12">
+                  <button
+                    onClick={() => { setBpScale(1); setBpPos({ x: 0, y: 0 }); setIsBlueprintOpen(true); }}
+                    className="group relative inline-flex items-center justify-center px-10 py-5 font-bold text-white transition-all duration-500 bg-slate-900 border-2 border-cyan-500/80 rounded-full hover:bg-cyan-500 hover:text-black overflow-hidden x-magnetic shadow-[0_0_35px_rgba(34,211,238,0.3)] hover:shadow-[0_0_50px_rgba(34,211,238,0.7)]"
+                  >
+                    <span className="relative flex items-center gap-4 tracking-widest uppercase text-base font-mono">
+                      <svg className="w-6 h-6 text-cyan-400 group-hover:text-black group-hover:rotate-90 transition-transform duration-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                      Our Technical Drawing
+                    </span>
+                  </button>
+                </div>
+              </div>
+
+              <div className="bg-slate-900/40 rounded-2xl border border-slate-800 shadow-xl overflow-hidden p-8">
+                <ul className="space-y-4">
+                  {[
+                    { n:'01', title:'1. Position Barrier', desc:'Place the wedge flood barrier near the target riverbank or drainage overflow containment zone. Secure structural brackets on reinforced bedrock.',
+                      icon:<svg className="w-16 h-16 text-cyan-400" viewBox="0 0 64 64" fill="none" stroke="currentColor"><polygon points="12,48 40,48 12,20" strokeWidth="1.5" strokeDasharray="2,2" /><polygon points="16,48 40,48 16,24" strokeWidth="2" /><line x1="8" y1="48" x2="56" y2="48" strokeWidth="2" /><line x1="20" y1="48" x2="20" y2="56" strokeWidth="1.5" /><line x1="32" y1="48" x2="32" y2="56" strokeWidth="1.5" /></svg> },
+                    { n:'02', title:'2. Connect Pipes', desc:'Ensure the subsurface drainage and diversion pipe fittings are securely sealed and properly aligned with the generator turbine inlet.',
+                      icon:<svg className="w-16 h-16 text-cyan-400" viewBox="0 0 64 64" fill="none" stroke="currentColor"><path d="M8,24 L40,24 A8,8 0 0,1 48,32 L48,56" strokeWidth="2" /><path d="M16,16 L40,16 A16,16 0 0,1 56,32 L56,56" strokeWidth="1.5" strokeDasharray="3,2" /><rect x="42" y="44" width="12" height="4" rx="1" fill="currentColor" opacity="0.3" strokeWidth="1" /></svg> },
+                    { n:'03', title:'3. Activate Sensors', desc:'Power up the electronic telemetry system and activate pressure/depth sensors on the wet side. Calibrate zero-offset parameters.',
+                      icon:<svg className="w-16 h-16 text-cyan-400" viewBox="0 0 64 64" fill="none" stroke="currentColor"><rect x="24" y="28" width="16" height="24" rx="2" strokeWidth="2" /><circle cx="32" cy="40" r="3" strokeWidth="1.5" /><path d="M20,16 Q32,4 44,16" strokeWidth="1.5" className="animate-pulse" /><path d="M24,20 Q32,10 40,20" strokeWidth="1" strokeDasharray="2,1" /></svg> },
+                    { n:'04', title:'4. Monitor Levels', desc:'Continuously track water pressure metrics and telemetry dashboard status for normal operation. Configure critical warning triggers.',
+                      icon:<svg className="w-16 h-16 text-cyan-400" viewBox="0 0 64 64" fill="none" stroke="currentColor"><rect x="10" y="16" width="44" height="32" rx="4" strokeWidth="2" /><path d="M16,36 L24,28 L32,38 L40,24 L48,34" strokeWidth="2" /><line x1="10" y1="40" x2="54" y2="40" strokeWidth="1" strokeDasharray="2,2" /></svg> },
+                    { n:'05', title:'5. Automatic Response', desc:'Allow the gate valve to open dynamically as hydrostatic pressure exceeds critical set boundaries. Ensure fast and frictionless actuation.',
+                      icon:<svg className="w-16 h-16 text-cyan-400" viewBox="0 0 64 64" fill="none" stroke="currentColor"><circle cx="32" cy="32" r="20" strokeWidth="2" /><line x1="32" y1="12" x2="32" y2="52" strokeWidth="2" /><line x1="12" y1="32" x2="52" y2="32" strokeWidth="2" /><path d="M46,24 A16,16 0 0,1 40,40" strokeWidth="1.5" strokeLinecap="round" className="animate-spin" style={{transformOrigin:'32px 32px',animationDuration:'4s'}} /></svg> },
+                    { n:'06', title:'6. Secure Water Flow', desc:'Ensure excess flow discharges smoothly into designated safe waterways or the active generation station to avoid bank erosion.',
+                      icon:<svg className="w-16 h-16 text-cyan-400" viewBox="0 0 64 64" fill="none" stroke="currentColor"><path d="M8,20 Q24,36 40,20 T72,20" strokeWidth="2" className="animate-pulse" /><path d="M8,30 Q24,46 40,30 T72,30" strokeWidth="1.5" opacity="0.6" strokeDasharray="4,2" /><circle cx="56" cy="48" r="4" strokeWidth="1.5" /></svg> },
+                  ].map((s, i) => (
+                    <li key={i} className="border-b border-slate-800/80 pb-6 pt-2 cursor-pointer group" onClick={() => setOpenSetup(openSetup === i ? null : i)}>
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                        <div className="flex items-center gap-4">
+                          <span className="text-cyan-500 font-mono text-sm font-semibold">{s.n}</span>
+                          <h4 className="font-bold text-white text-lg group-hover:text-cyan-400 transition-colors">{s.title}</h4>
+                        </div>
+                        <div className="flex items-center gap-4">
+                          <div className={`hidden sm:block p-2 bg-slate-950/80 rounded-xl border border-cyan-500/20 transition-all duration-300 ${openSetup === i ? 'opacity-100 scale-100 border-cyan-500/40 shadow-[0_0_15px_rgba(34,211,238,0.2)]' : 'opacity-40 scale-95'}`}>
+                            {s.icon}
+                          </div>
+                          <svg className={`w-5 h-5 text-slate-500 transition-transform duration-300 ${openSetup === i ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
+                        </div>
+                      </div>
+                      <div className={`overflow-hidden transition-all duration-500 ease-in-out ${openSetup === i ? 'max-h-40 opacity-100 mt-4' : 'max-h-0 opacity-0'}`}>
+                        <p className="text-slate-400 text-sm leading-relaxed pl-10 pr-4">{s.desc}</p>
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+          </section>
+          
+          {/* SIMULATION */}
+          <section id="simulation" className="py-16 bg-slate-950 border-t border-b border-slate-900 scroll-mt-6 relative z-20">
+            <div className="max-w-7xl mx-auto px-4">
+              <div className="mb-10 text-center" data-rev="up">
+                <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">System Workflow Simulation (Cross-Section)</h2>
+                <p className="text-slate-400">The barrier wall, underground pipe flow, and power plant are shown in an accurate cross-sectional view.</p>
+              </div>
+              <div className="relative">
+                <div className={`grid lg:grid-cols-4 gap-6 transition-all duration-700 ${!isUnlocked ? 'filter blur-[8px] pointer-events-none select-none opacity-30' : 'opacity-100'}`}>
+                  <div className="lg:col-span-1 space-y-6">
+                    <div className="bg-slate-900 border border-slate-800 rounded-xl p-6 shadow-xl">
+                      <h3 className="text-xl font-bold text-white mb-6 border-b border-slate-800 pb-2">Simulation Controls</h3>
+                      <button 
+                        onClick={runSimulation} 
+                        disabled={isSimulating && phase < 4}
+                        className={`x-ripple-wrap x-magnetic w-full py-4 rounded-lg font-bold text-lg mb-4 transition-all shadow-lg ${isSimulating && phase < 4 ? 'bg-slate-800 text-slate-500 cursor-not-allowed border border-slate-700' : 'bg-cyan-600 hover:bg-cyan-500 text-white hover:scale-105 border border-cyan-400/50 shadow-[0_0_15px_rgba(34,211,238,0.3)]'}`}
+                      >
+                        {phase === 4 ? 'Repeat Simulation' : '▶  Start Flood Simulation'}
+                      </button>
+                      {phase > 0 && (
+                        <button onClick={resetSimulation} className="x-ripple-wrap w-full py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-lg font-medium transition-colors border border-slate-700">
+                          Reset to Normal Condition
+                        </button>
+                      )}
+                    </div>
+                    <div className="bg-slate-900 border border-slate-800 rounded-xl p-6 shadow-xl">
+                      <h3 className="text-lg font-bold text-white mb-4">System Workflow</h3>
+                      <ul className="space-y-4">
+                        {[
+                          {p:0, label:'Normal River Condition', activeColor:'bg-cyan-500 shadow-[0_0_10px_#22d3ee]'},
+                          {p:1, label:'Water Volume Increases (Flood Potential)', activeColor:'bg-blue-500 shadow-[0_0_10px_#3b82f6]'},
+                          {p:2, label:'Sensor Detects Critical Pressure', activeColor:'bg-red-500 shadow-[0_0_15px_red]'},
+                          {p:3, label:'Automated Valve Opens & Water Redirected', activeColor:'bg-green-500 shadow-[0_0_10px_#10b981]'},
+                          {p:4, label:'Turbine Spins & Generates Electricity', activeColor:'bg-yellow-500 shadow-[0_0_15px_yellow]'},
+                        ].map((item, i) => (
+                          <li key={i} className={`flex items-center gap-3 transition-opacity duration-300 ${phase >= item.p ? 'opacity-100' : 'opacity-40'}`}>
+                            <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm transition-all duration-300 ${phase === item.p ? item.activeColor + ' text-white' : 'bg-slate-800 text-slate-400'}`}>{i+1}</div>
+                            <span className="text-sm text-slate-400">{item.label}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  </div>
+                  <div className="lg:col-span-3 bg-slate-950 rounded-xl overflow-hidden border-2 border-slate-800 shadow-2xl relative" style={{aspectRatio:'16/9',minHeight:'400px'}}>
+                    <div className="absolute top-4 left-4 right-4 flex justify-between z-10 pointer-events-none">
+                      <div className="bg-slate-900/90 backdrop-blur border border-slate-800 rounded px-4 py-2 font-mono text-xs">
+                        <span className="text-slate-400">SENSOR STATUS: </span>
+                        <span className={isDanger ? "text-red-500 font-bold animate-pulse" : "text-cyan-400 font-bold"}>
+                          {isDanger ? "CRITICAL WATER LEVEL" : "NORMAL"}
+                        </span>
+                      </div>
+                      <div className="bg-slate-900/90 backdrop-blur border border-slate-800 rounded px-4 py-2 font-mono text-xs">
+                        <span className="text-slate-400">POWER OUTPUT: </span>
+                        <span className={isGenerating ? "text-yellow-400 font-bold" : "text-slate-500"}>
+                          {isGenerating ? "1.2 MW" : "0 MW"}
+                        </span>
+                      </div>
+                    </div>
+                    <svg viewBox="0 0 1200 700" className="w-full h-full absolute inset-0">
+                      <rect x="0" y="0" width="1200" height="700" fill="#0f172a" />
+                      <path d="M 0 400 L 400 400 L 400 700 L 0 700 Z" fill="#1e293b" />
+                      <path d="M 600 400 L 1200 400 L 1200 700 L 600 700 Z" fill="#1e293b" />
+                      <path d="M 400 500 L 600 500 L 600 700 L 400 700 Z" fill="#1e293b" />
+                      <rect x="0" y={waterLevelY} width="400" height={400 - waterLevelY} fill="#0ea5e9" opacity="0.7" style={{transition:'y 2s, height 2s'}} />
+                      <path d={`M 0 ${waterLevelY} L 400 ${waterLevelY}`} stroke="#38bdf8" strokeWidth="3" />
+                      <rect x="380" y="400" width="240" height="150" fill="#334155" stroke="#475569" strokeWidth="4" />
+                      <polygon points="400,400 600,400 600,100" fill="#64748b" stroke="#94a3b8" strokeWidth="4" strokeLinejoin="round" />
+                      <line x1="450" y1="400" x2="600" y2="175" stroke="#475569" strokeWidth="3" />
+                      <line x1="500" y1="400" x2="600" y2="250" stroke="#475569" strokeWidth="3" />
+                      <line x1="550" y1="400" x2="600" y2="325" stroke="#475569" strokeWidth="3" />
+                      <g transform="translate(430, 320)">
+                        <rect x="-10" y="-15" width="20" height="30" fill="#94a3b8" rx="4" stroke="#e2e8f0" strokeWidth="2" />
+                        <line x1="0" y1="-15" x2="0" y2="-30" stroke="#e2e8f0" strokeWidth="2" />
+                        <circle cx="0" cy="-30" r="3" fill={isDanger ? "#ef4444" : "#22c55e"} />
+                        {isDanger && (
+                          <g transform="translate(0, -35)">
+                            <circle cx="0" cy="0" r="10" fill="none" stroke="#ef4444" strokeWidth="2" className="signal-wave" />
+                            <circle cx="0" cy="0" r="20" fill="none" stroke="#ef4444" strokeWidth="2" className="signal-wave" style={{animationDelay:'0.5s'}} />
+                          </g>
+                        )}
+                        <text x="-30" y="-45" fill="white" fontSize="12" fontFamily="sans-serif">Sensor Array</text>
+                      </g>
+                      <rect x="520" y="250" width="40" height="50" fill="#1e293b" stroke="#3b82f6" strokeWidth="2" rx="4" />
+                      <rect x="525" y="255" width="30" height="20" fill={isDanger ? "#ef4444" : "#10b981"} style={{transition:'fill 0.5s'}} />
+                      <text x="565" y="270" fill="white" fontSize="12">Control Unit</text>
+                      {isDanger && <path d="M 440 280 Q 480 250 520 270" fill="none" stroke="#ef4444" strokeWidth="2" strokeDasharray="5" className="animate-pulse" />}
+                      <path d="M 400 370 L 450 370 Q 480 370 480 400 L 480 600 Q 480 630 510 630 L 720 630 Q 750 630 750 600 L 750 500 L 850 500" fill="none" stroke="#0f172a" strokeWidth="40" strokeLinecap="butt" />
+                      <path d="M 400 370 L 450 370 Q 480 370 480 400 L 480 600 Q 480 630 510 630 L 720 630 Q 750 630 750 600 L 750 500 L 850 500" fill="none" stroke="#334155" strokeWidth="36" strokeLinecap="butt" />
+                      <rect x="385" y="350" width="15" height="40" fill="#1e293b" stroke="#64748b" strokeWidth="2" />
+                      <text x="300" y="340" fill="white" fontSize="12">Direct Intake (Screen)</text>
+                      {isValveOpen && (
+                        <path d="M 390 370 L 450 370 Q 480 370 480 400 L 480 600 Q 480 630 510 630 L 720 630 Q 750 630 750 600 L 750 500 L 850 500" fill="none" stroke="#0ea5e9" strokeWidth="36" strokeLinecap="butt" strokeDasharray="40 20" className="animate-water-flow" />
+                      )}
+                      <g transform="translate(480, 480)">
+                        <rect x="-25" y="-15" width="50" height="30" fill="#475569" rx="2" />
+                        <rect x="-5" y="-30" width="10" height="60" fill={isValveOpen ? "#10b981" : "#ef4444"} style={{transform:isValveOpen?'rotate(90deg)':'rotate(0deg)',transition:'transform 1s, fill 1s'}} />
+                        <rect x="-15" y="-40" width="30" height="15" fill="#1e293b" stroke="#94a3b8" strokeWidth="2" />
+                        <path d="M 60 -210 L 60 -40 L 15 -40" fill="none" stroke={isValveOpen?"#10b981":"#475569"} strokeWidth="2" strokeDasharray="4" />
+                      </g>
+                      <text x="510" y="475" fill="white" fontSize="12">Automated Valve</text>
+                      <rect x="700" y="250" width="150" height="200" fill="#1e293b" stroke="#64748b" strokeWidth="4" />
+                      <rect x="720" y="270" width="110" height="40" fill="#0f172a" />
+                      <text x="730" y="295" fill="#e2e8f0" fontSize="14" fontWeight="bold">POWER PLANT</text>
+                      <circle cx="750" cy="500" r="45" fill="#334155" stroke="#64748b" strokeWidth="6" />
+                      <circle cx="750" cy="500" r="38" fill="#0f172a" />
+                      <g className={isGenerating ? "spin-fast" : ""}>
+                        <circle cx="750" cy="500" r="10" fill="#94a3b8" />
+                        {[0,60,120,180,240,300].map(angle => (
+                          <g key={angle} transform={`rotate(${angle} 750 500)`}>
+                            <path d="M 750 490 L 740 465 L 760 465 Z" fill="#cbd5e1" />
+                          </g>
+                        ))}
+                      </g>
+                      <text x="700" y="565" fill="white" fontSize="12">Hydropower Turbine</text>
+                      <rect x="745" y="380" width="10" height="75" fill="#94a3b8" />
+                      <rect x="710" y="330" width="80" height="50" fill="#475569" stroke="#94a3b8" strokeWidth="2" rx="4" />
+                      <text x="720" y="360" fill="white" fontSize="10">GENERATOR</text>
+                      <circle cx="780" cy="345" r="5" fill={isGenerating?"#fbbf24":"#475569"} className={isGenerating?"animate-pulse":""} />
+                      <path d="M 850 480 L 1200 480" stroke="#0ea5e9" strokeWidth="40" opacity={isGenerating?"0.6":"0"} style={{transition:'opacity 1s'}} />
+                      <path d="M 850 480 L 1200 480" fill="none" stroke="#e0f2fe" strokeWidth="4" strokeDasharray="20 40" className={isGenerating?"animate-water-flow":"hidden"} />
+                      <text x="900" y="515" fill="white" fontSize="12">Subsurface Discharge</text>
+                      <path d="M 820 250 L 830 180 L 850 180 L 860 250 M 835 215 L 845 215 M 825 250 L 855 250" fill="none" stroke="#94a3b8" strokeWidth="3" />
+                      <path d="M 840 180 Q 950 200 1050 150" fill="none" stroke="#475569" strokeWidth="2" />
+                      <path d="M 840 190 Q 950 210 1050 160" fill="none" stroke="#475569" strokeWidth="2" />
+                      {isGenerating && (
+                        <>
+                          <path d="M 840 180 Q 950 200 1050 150" fill="none" stroke="#fbbf24" strokeWidth="4" strokeDasharray="10 15" className="animate-energy-flow" />
+                          <path d="M 840 190 Q 950 210 1050 160" fill="none" stroke="#fbbf24" strokeWidth="4" strokeDasharray="10 15" className="animate-energy-flow" style={{animationDelay:'0.2s'}} />
+                        </>
+                      )}
+                      <g transform="translate(1020, 100)">
+                        <rect x="0" y="80" width="150" height="20" fill="#334155" />
+                        <rect x="10" y="40" width="40" height="40" fill="#475569" />
+                        <polygon points="5,40 30,20 55,40" fill="#ef4444" />
+                        <rect x="25" y="55" width="10" height="15" fill={isGenerating?"#fbbf24":"#1e293b"} style={{transition:'fill 1s'}} />
+                        <rect x="70" y="30" width="60" height="50" fill="#64748b" />
+                        <polygon points="65,30 100,10 135,30" fill="#b91c1c" />
+                        <rect x="85" y="50" width="15" height="15" fill={isGenerating?"#fbbf24":"#1e293b"} style={{transition:'fill 1s'}} />
+                        <rect x="110" y="50" width="15" height="15" fill={isGenerating?"#fbbf24":"#1e293b"} style={{transition:'fill 1s'}} />
+                        {isGenerating && (
+                          <g transform="translate(50, -30)" className="animate-bounce">
+                            <circle cx="20" cy="20" r="25" fill="#fef3c7" stroke="#fbbf24" strokeWidth="3" opacity="0.9" />
+                            <path d="M 23 10 V 17 L 14 28 H 21 V 35 L 30 24 H 23 Z" fill="#f59e0b" />
+                          </g>
+                        )}
+                      </g>
+                      <text x="1060" y="210" fill="white" fontSize="12">Community Grid</text>
+                    </svg>
+                  </div>
+                </div>
+                {!isUnlocked && (
+                  <div className="absolute inset-0 z-30 flex flex-col items-center justify-center p-6 bg-slate-950/50 backdrop-blur-[4px] rounded-2xl border border-slate-700/40">
+                    <button 
+                      onClick={() => setIsUnlocked(true)}
+                      className="x-ripple-wrap x-magnetic bg-cyan-600 hover:bg-cyan-500 text-white font-extrabold py-5 px-10 rounded-full text-xl transition-all shadow-[0_0_35px_rgba(37,99,235,0.8)] hover:scale-110 active:scale-95 flex items-center gap-3 cursor-pointer pointer-events-auto"
+                    >
+                      <svg className="w-6 h-6 animate-pulse text-blue-100" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                      View Interactive Simulation
+                    </button>
+                    <p className="text-slate-300 mt-4 text-center text-sm font-semibold bg-slate-900/90 px-5 py-2.5 rounded-full border border-slate-700/60 shadow-lg max-w-xs sm:max-w-md pointer-events-auto select-none">
+                      Click to unlock and activate real-time telemetry dashboard
+                    </p>
+                  </div>
+                )}
+              </div>
+            </div>
+          </section>
+          
+          {/* IMPACT */}
+          <section id="sec-impact" className="py-20 bg-slate-950 px-4 relative z-20">
+            <div className="max-w-5xl mx-auto text-center">
+              <h2 className="text-3xl font-bold mb-6 text-white uppercase tracking-wide x-underline-anim">The Impact</h2>
+              <p className="text-lg text-slate-300 mb-12 max-w-2xl mx-auto">Flooding is a major environmental challenge that threatens communities and infrastructure. Our invention provides a 3-in-1 solution:</p>
+              <div className="grid md:grid-cols-3 gap-8 text-left">
+                {[
+                  { border:'border-green-500', bg:'bg-green-500/10', color:'text-green-400', title:'Protects Communities', desc:'Directly protects residential communities from destructive flash floods.' },
+                  { border:'border-blue-500',  bg:'bg-blue-500/10',  color:'text-blue-400',  title:'Reduces Economic Losses', desc:'Reduces massive economic losses caused by recurring natural disasters every year.' },
+                  { border:'border-yellow-500',bg:'bg-yellow-500/10',color:'text-yellow-400',title:'Supports Renewable Energy', desc:'Converts destructive floodwater into a sustainable source of hydropower electricity.' },
+                ].map((c, i) => (
+                  <div key={i} data-rev="up" style={{transitionDelay:(i*120)+'ms'}} className={`x-tilt bg-slate-900/40 p-8 rounded-2xl shadow-lg border-b-4 ${c.border} hover:-translate-y-2 transition-transform`}>
+                    <div className={`w-14 h-14 ${c.bg} ${c.color} rounded-2xl flex items-center justify-center mb-6`}>
+                      <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                    </div>
+                    <h3 className="font-bold text-xl mb-3 text-white">{c.title}</h3>
+                    <p className="text-slate-400 text-sm leading-relaxed">{c.desc}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </section>
+
+          {/* VIEW IMPACT PHOTO BUTTON */}
+          <div className="flex justify-center my-12">
+            <button 
+              onClick={() => { setIpScale(1); setIpPos({ x:0, y:0 }); setIsImpactPhotoOpen(true); }}
+              className="group relative px-8 py-4 bg-slate-900 border border-cyan-500/40 rounded-xl overflow-hidden shadow-[0_0_20px_rgba(6,182,212,0.15)] hover:shadow-[0_0_35px_rgba(34,211,238,0.3)] transition-all duration-300 transform hover:-translate-y-1 flex items-center gap-3"
+            >
+              <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/10 to-blue-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+              <svg className="w-5 h-5 text-cyan-400 group-hover:rotate-12 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+              </svg>
+              <span className="relative text-sm font-semibold tracking-wider text-slate-200 group-hover:text-cyan-300 uppercase transition-colors">
+                View Impact &amp; Implementation Photo
+              </span>
+            </button>
+          </div>
+          
+          {/* FOOTER */}
+          <footer id="sec-footer" className="bg-slate-950 text-slate-400 py-12 text-center border-t border-slate-900 relative z-10">
+            <div className="max-w-4xl mx-auto px-4">
+              <h2 className="text-3xl font-bold text-white mb-4 tracking-widest uppercase" data-rev="up">Thank You For Listening</h2>
+              <p className="mb-6 opacity-60">Smart Flood-Control Barrier &amp; Power Generation System</p>
+            </div>
+          </footer>
+          
+          {/* ── MODAL: System State Details ── */}
+          {activeSystemState && (
+            <div className="fixed inset-0 z-[99999] flex items-center justify-center bg-slate-950/80 backdrop-blur-md p-4 animate-modal-pop">
+              <div className="bg-slate-900 border-2 border-cyan-500/30 rounded-2xl max-w-lg w-full p-6 relative shadow-[0_0_50px_rgba(34,211,238,0.2)]">
+                <button onClick={() => setActiveSystemState(null)} className="absolute top-4 right-4 text-cyan-500 hover:text-white transition-colors p-2 bg-slate-950/80 rounded-full border border-cyan-500/20 cursor-pointer">
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+                <h3 className="font-mono text-cyan-400 text-xs tracking-widest uppercase mb-2">SYSTEM DIAGNOSTICS</h3>
+                <h2 className="text-2xl font-bold text-white mb-4">{activeSystemState.title}</h2>
+                <p className="text-slate-300 text-sm leading-relaxed">{activeSystemState.text}</p>
+              </div>
+            </div>
+          )}
+          
+          {/* ── MODAL: Technical Blueprint ── */}
+          {isBlueprintOpen && (
+            <div className="fixed inset-0 z-[99999] flex items-center justify-center bg-slate-950/95 backdrop-blur-md animate-modal-pop">
+              <button 
+                onClick={() => setIsBlueprintOpen(false)} 
+                className="absolute top-6 right-6 text-cyan-400 hover:text-cyan-300 transition-colors z-[100] flex items-center gap-3 bg-slate-900/85 p-3 rounded-full border border-cyan-500/30 cursor-pointer"
+              >
+                <span className="font-mono text-[10px] tracking-widest hidden sm:block">CLOSE</span>
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M6 18L18 6M6 6l12 12"></path></svg>
+              </button>
+              <div className="w-[98vw] h-[96vh] flex border border-cyan-500/20 bg-slate-900 rounded-2xl relative z-10 overflow-hidden shadow-[0_0_40px_rgba(34,211,238,0.15)]">
+                <div 
+                  className="flex-1 relative bg-[#030712] overflow-hidden flex items-center justify-center select-none"
+                  onMouseMove={bpMouseMove}
+                  onMouseUp={bpMouseUp}
+                  onMouseLeave={bpMouseUp}
+                >
+                  <div
+                    className="w-full h-full flex items-center justify-center"
+                    style={{ transform:`scale(${bpScale}) translate(${bpPos.x}px, ${bpPos.y}px)`, cursor: bpDragging.current ? 'grabbing' : 'grab' }}
+                    onMouseDown={bpMouseDown}
+                  >
+                    <img src="inggris.jpeg" alt="Technical Drawing Blueprint" className="max-w-full max-h-full object-contain pointer-events-none" />
+                  </div>
+                  <div className="absolute bottom-6 right-6 flex gap-3 z-50 bg-slate-900/80 p-3 rounded-xl border border-cyan-500/40 backdrop-blur-sm font-mono text-xs text-cyan-400">
+                    <button onClick={bpZoomIn}    className="px-4 py-2 bg-slate-800/80 border border-slate-700 rounded-lg hover:bg-cyan-500 hover:text-slate-950 font-bold transition-all cursor-pointer">ZOOM IN (+)</button>
+                    <button onClick={bpZoomOut}   className="px-4 py-2 bg-slate-800/80 border border-slate-700 rounded-lg hover:bg-cyan-500 hover:text-slate-950 font-bold transition-all cursor-pointer">ZOOM OUT (-)</button>
+                    <button onClick={bpZoomReset} className="px-4 py-2 bg-slate-800/80 border border-slate-700 rounded-lg hover:bg-rose-500 hover:border-rose-400 hover:text-white font-bold transition-all cursor-pointer">RESET</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* ── MODAL: Impact Photo ── */}
+          {isImpactPhotoOpen && (
+            <div className="fixed inset-0 z-[99999] flex items-center justify-center bg-slate-950/95 backdrop-blur-md animate-modal-pop">
+              <button 
+                onClick={() => setIsImpactPhotoOpen(false)} 
+                className="absolute top-6 right-6 text-cyan-400 hover:text-cyan-300 transition-colors z-[100] flex items-center gap-3 bg-slate-900/85 p-3 rounded-full border border-cyan-500/30 cursor-pointer"
+              >
+                <span className="font-mono text-[10px] tracking-widest hidden sm:block">CLOSE</span>
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+              </button>
+              <div className="w-[98vw] h-[96vh] flex border border-cyan-500/20 bg-slate-900 rounded-2xl relative z-10 overflow-hidden shadow-[0_0_40px_rgba(34,211,238,0.15)]">
+                <div 
+                  className="flex-1 relative bg-[#030712] overflow-hidden flex items-center justify-center select-none"
+                  onMouseMove={ipMouseMove}
+                  onMouseUp={ipMouseUp}
+                  onMouseLeave={ipMouseUp}
+                >
+                  <div
+                    className="w-full h-full flex items-center justify-center"
+                    style={{ transform:`scale(${ipScale}) translate(${ipPos.x}px, ${ipPos.y}px)`, cursor: ipDragging.current ? 'grabbing' : 'grab' }}
+                    onMouseDown={ipMouseDown}
+                  >
+                    <img src="inggris.jpeg" alt="Impact & Implementation Photo" className="max-w-full max-h-full object-contain pointer-events-none" />
+                  </div>
+                  <div className="absolute bottom-6 right-6 flex gap-3 z-50 bg-slate-900/80 p-3 rounded-xl border border-cyan-500/40 backdrop-blur-sm font-mono text-xs text-cyan-400">
+                    <button onClick={ipZoomIn}    className="px-4 py-2 bg-slate-800/80 border border-slate-700 rounded-lg hover:bg-cyan-500 hover:text-slate-950 font-bold transition-all cursor-pointer">ZOOM IN (+)</button>
+                    <button onClick={ipZoomOut}   className="px-4 py-2 bg-slate-800/80 border border-slate-700 rounded-lg hover:bg-cyan-500 hover:text-slate-950 font-bold transition-all cursor-pointer">ZOOM OUT (-)</button>
+                    <button onClick={ipZoomReset} className="px-4 py-2 bg-slate-800/80 border border-slate-700 rounded-lg hover:bg-rose-500 hover:border-rose-400 hover:text-white font-bold transition-all cursor-pointer">RESET</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+        </div>
+      );
+    };
+
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<App />);
+  </script>
+
+  <script>
+    (function() {
+      'use strict';
+      
+      function onReady(fn) {
+        if (document.readyState === 'complete') { 
+          setTimeout(fn, 200); 
+        } else { 
+          window.addEventListener('load', () => setTimeout(fn, 200)); 
+        }
+      }
+      
+      /* ── 1. LOADING OVERLAY ── */
+      window.addEventListener('load', () => {
+        setTimeout(() => {
+          const loader = document.getElementById('x-loader');
+          if (loader) { 
+            loader.classList.add('out'); 
+            setTimeout(() => loader.remove(), 800); 
+          }
+        }, 1500);
+      });
+      
+      onReady(function() {
+        /* ── 2. CUSTOM CURSOR ── */
+        const cur  = document.getElementById('x-cursor');
+        const ring = document.getElementById('x-cursor-ring');
+        let mx = 0, my = 0, rx = 0, ry = 0;
+        
+        document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; });
+        
+        (function animCursor() {
+          cur.style.left  = mx + 'px';
+          cur.style.top   = my + 'px';
+          rx += (mx - rx) * 0.13;
+          ry += (my - ry) * 0.13;
+          ring.style.left = rx + 'px';
+          ring.style.top  = ry + 'px';
+          requestAnimationFrame(animCursor);
+        })();
+        
+        document.querySelectorAll('a,button,[data-hover],li').forEach(el => {
+          el.addEventListener('mouseenter', () => document.body.classList.add('cursor-hover'));
+          el.addEventListener('mouseleave', () => document.body.classList.remove('cursor-hover'));
+        });
+        
+        /* ── 3. SCROLL PROGRESS BAR ── */
+        const pgbar = document.getElementById('x-progress');
+        window.addEventListener('scroll', () => {
+          const pct = window.scrollY / (document.body.scrollHeight - window.innerHeight) * 100;
+          pgbar.style.width = Math.min(100, pct) + '%';
+        }, { passive: true });
+        
+        /* ── 4. SCROLL HINT ── */
+        const hint = document.getElementById('x-scroll-hint');
+        window.addEventListener('scroll', () => {
+          if (window.scrollY > 80) hint.classList.add('hidden');
+          else hint.classList.remove('hidden');
+        }, { passive: true });
+        
+        /* ── 5. STORY NAVIGATION DOTS ── */
+        const sections = [
+          { id:'sec-hero',    label:'Home' },
+          { id:'sec-what',    label:'System' },
+          { id:'sec-problem', label:'Problem' },
+          { id:'sec-setup',   label:'Setup' },
+          { id:'simulation',  label:'Simulation' },
+          { id:'sec-impact',  label:'Impact' },
+          { id:'sec-footer',  label:'Closing' },
+        ];
+        
+        const storyNav = document.getElementById('x-story');
+        sections.forEach((s) => {
+          const dot = document.createElement('div');
+          dot.className = 'story-dot x-tooltip-wrap';
+          dot.innerHTML = `<div class="x-tooltip">${s.label}</div>`;
+          dot.addEventListener('click', () => {
+            const el = document.getElementById(s.id);
+            if (el) el.scrollIntoView({ behavior: 'smooth' });
+          });
+          storyNav.appendChild(dot);
+        });
+        
+        const allDots = storyNav.querySelectorAll('.story-dot');
+        function updateStoryDots() {
+          sections.forEach((s, i) => {
+            const el = document.getElementById(s.id);
+            if (!el) return;
+            const rect = el.getBoundingClientRect();
+            if (rect.top <= window.innerHeight / 2 && rect.bottom >= window.innerHeight / 2) {
+              allDots[i].classList.add('active');
+            } else {
+              allDots[i].classList.remove('active');
+            }
+          });
+        }
+        window.addEventListener('scroll', updateStoryDots, { passive: true });
+        updateStoryDots();
+        
+        /* ── 6. SCROLL REVEAL ── */
+        const revObs = new IntersectionObserver(entries => {
+          entries.forEach(e => {
+            if (e.isIntersecting) { e.target.classList.add('x-vis'); revObs.unobserve(e.target); }
+          });
+        }, { threshold: 0.12 });
+        
+        document.querySelectorAll('h2, h3').forEach(el => {
+          if (!el.hasAttribute('data-rev')) { el.setAttribute('data-rev', 'up'); revObs.observe(el); }
+        });
+        document.querySelectorAll('[data-rev]').forEach(el => revObs.observe(el));
+        
+        const ulObs = new IntersectionObserver(entries => {
+          entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('x-vis'); });
+        }, { threshold: 0.5 });
+        document.querySelectorAll('.x-underline-anim, .x-line-draw').forEach(el => ulObs.observe(el));
+        
+        const staggerObs = new IntersectionObserver(entries => {
+          entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('x-vis'); });
+        }, { threshold: 0.15 });
+        document.querySelectorAll('.x-stagger').forEach(el => staggerObs.observe(el));
+        
+        /* ── 7. RIPPLE EFFECT ── */
+        function addRipple(e, btn) {
+          const rect = btn.getBoundingClientRect();
+          const size = Math.max(rect.width, rect.height) * 1.5;
+          const x = e.clientX - rect.left - size/2;
+          const y = e.clientY - rect.top  - size/2;
+          const rip = document.createElement('span');
+          rip.className = 'x-ripple';
+          rip.style.cssText = `width:${size}px;height:${size}px;left:${x}px;top:${y}px;`;
+          btn.appendChild(rip);
+          setTimeout(() => rip.remove(), 600);
+        }
+        document.addEventListener('click', e => {
+          const btn = e.target.closest('.x-ripple-wrap, button');
+          if (btn) addRipple(e, btn);
+        });
+        
+        /* ── 8. CARD TILT ── */
+        function initTilt(el) {
+          el.addEventListener('mousemove', e => {
+            const r  = el.getBoundingClientRect();
+            const x  = (e.clientX - r.left) / r.width  - 0.5;
+            const y  = (e.clientY - r.top)  / r.height - 0.5;
+            el.style.transform = `perspective(600px) rotateX(${y * -8}deg) rotateY(${x * 8}deg) scale3d(1.02,1.02,1.02)`;
+          });
+          el.addEventListener('mouseleave', () => { el.style.transform = ''; });
+        }
+        document.querySelectorAll('.x-tilt').forEach(initTilt);
+        
+        /* ── 9. MAGNETIC BUTTON ── */
+        document.querySelectorAll('.x-magnetic').forEach(btn => {
+          btn.addEventListener('mousemove', e => {
+            const r  = btn.getBoundingClientRect();
+            const dx = e.clientX - (r.left + r.width/2);
+            const dy = e.clientY - (r.top  + r.height/2);
+            btn.style.transform = `translate(${dx*0.2}px, ${dy*0.2}px)`;
+          });
+          btn.addEventListener('mouseleave', () => btn.style.transform = '');
+        });
+        
+        /* ── 10. HERO PARALLAX ── */
+        const heroLayer = document.querySelector('.x-hero-layer');
+        window.addEventListener('scroll', () => {
+          if (!heroLayer) return;
+          heroLayer.style.transform = `translateY(${window.scrollY * 0.35}px)`;
+        }, { passive: true });
+        
+        /* ── 11. WATER PARTICLES CANVAS ── */
+        const pc   = document.getElementById('x-particles');
+        const pctx = pc.getContext('2d');
+        function resizePC() { pc.width = window.innerWidth; pc.height = window.innerHeight; }
+        resizePC();
+        window.addEventListener('resize', resizePC);
+        
+        const drops = Array.from({ length: 55 }, () => ({
+          x: Math.random() * window.innerWidth,
+          y: Math.random() * window.innerHeight,
+          r: Math.random() * 3 + 1,
+          vy: -(Math.random() * 0.4 + 0.1),
+          vx: (Math.random() - 0.5) * 0.3,
+          a: Math.random() * 0.5 + 0.1,
+          pulse: Math.random() * Math.PI * 2,
+        }));
+        
+        function drawParticles() {
+          pctx.clearRect(0, 0, pc.width, pc.height);
+          drops.forEach(d => {
+            d.y += d.vy; d.x += d.vx; d.pulse += 0.02;
+            if (d.y < -20) { d.y = pc.height + 20; d.x = Math.random() * pc.width; }
+            if (d.x < -20)            d.x = pc.width + 20;
+            if (d.x > pc.width + 20)  d.x = -20;
+            const alpha = d.a * (0.6 + Math.sin(d.pulse) * 0.4);
+            pctx.beginPath();
+            pctx.arc(d.x, d.y, d.r, 0, Math.PI * 2);
+            pctx.fillStyle = `rgba(34,211,238,${alpha})`;
+            pctx.fill();
+            pctx.beginPath();
+            pctx.moveTo(d.x, d.y + d.r);
+            pctx.lineTo(d.x - 1, d.y + d.r + d.r * 2.5);
+            pctx.lineTo(d.x + 1, d.y + d.r + d.r * 2.5);
+            pctx.closePath();
+            pctx.fillStyle = `rgba(14,165,233,${alpha * 0.4})`;
+            pctx.fill();
+          });
+          if (window.scrollY < window.innerHeight) {
+            for (let i = 0; i < drops.length; i++) {
+              for (let j = i+1; j < drops.length; j++) {
+                const dx = drops[i].x - drops[j].x;
+                const dy = drops[i].y - drops[j].y;
+                const dist = Math.sqrt(dx*dx + dy*dy);
+                if (dist < 100) {
+                  pctx.beginPath();
+                  pctx.moveTo(drops[i].x, drops[i].y);
+                  pctx.lineTo(drops[j].x, drops[j].y);
+                  pctx.strokeStyle = `rgba(34,211,238,${0.05 * (1 - dist/100)})`;
+                  pctx.lineWidth = 0.5;
+                  pctx.stroke();
+                }
+              }
+            }
+          }
+          requestAnimationFrame(drawParticles);
+        }
+        drawParticles();
+        
+        /* ── 12. RE-INIT dynamic elements ── */
+        const mutObs = new MutationObserver(() => {
+          document.querySelectorAll('.x-tilt:not([data-tilt-init])').forEach(el => {
+            el.setAttribute('data-tilt-init', '1');
+            initTilt(el);
+          });
+          document.querySelectorAll('[data-rev]:not([data-obs-init])').forEach(el => {
+            el.setAttribute('data-obs-init', '1');
+            revObs.observe(el);
+          });
+        });
+        mutObs.observe(document.body, { childList: true, subtree: true });
+        
+        /* ── 13. KEYBOARD NAV ── */
+        document.addEventListener('keydown', e => {
+          const secEls = sections.map(s => document.getElementById(s.id)).filter(Boolean);
+          const curr = secEls.findIndex(el => el.getBoundingClientRect().top >= -100);
+          if (e.key === 'ArrowDown' && curr < secEls.length - 1) {
+            e.preventDefault();
+            secEls[curr + 1].scrollIntoView({ behavior: 'smooth' });
+          }
+          if (e.key === 'ArrowUp' && curr > 0) {
+            e.preventDefault();
+            secEls[Math.max(0, curr - 1)].scrollIntoView({ behavior: 'smooth' });
+          }
+        });
+      });
+    })();
+  </script>
+</body>
+</html>
