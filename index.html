@@ -410,9 +410,6 @@
   
   <div id="root"></div>
 
-  <!-- ================================================================
-       SINGLE React script — App component contains ALL modals & state
-       ================================================================ -->
   <script type="text/babel">
     const { useState, useEffect, useRef } = React;
     
@@ -488,6 +485,40 @@
         setIpPos({ x: e.clientX - ipStartDrag.current.x, y: e.clientY - ipStartDrag.current.y });
       };
       const ipMouseUp = () => { ipDragging.current = false; };
+
+      // Troubleshoot Data Array
+      const warningsData = [
+        {
+          title: "Inaccurate Water Level Detection",
+          cause: "Sensor is blocked by trash or miscalibrated.",
+          solution: "Clean the sensor and recalibrate it to ensure accurate tracking.",
+          colors: "border-amber-500",
+          bg: "bg-amber-500/10",
+          textIcon: "text-amber-500",
+          textTitle: "text-amber-400",
+          icon: <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+        },
+        {
+          title: "Pipe Doesn't Open",
+          cause: "The pipe valve is blocked, damaged, or the sensor/control system fails to send a signal.",
+          solution: "Clean the pipe and valve, repair damaged parts, and check the sensor and control system connections to ensure proper operation.",
+          colors: "border-red-500",
+          bg: "bg-red-500/10",
+          textIcon: "text-red-500",
+          textTitle: "text-red-400",
+          icon: <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"></path>
+        },
+        {
+          title: "Hydropower Generation Decreases",
+          cause: "Low water flow or turbine blockage.",
+          solution: "Clean the turbine system and maintain stable water flow to improve electricity generation efficiency.",
+          colors: "border-orange-500",
+          bg: "bg-orange-500/10",
+          textIcon: "text-orange-500",
+          textTitle: "text-orange-400",
+          icon: <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+        }
+      ];
       
       return (
         <div className="flex flex-col min-h-screen bg-slate-950 text-slate-100">
@@ -520,7 +551,6 @@
           <section id="sec-team" className="py-8 bg-slate-900 text-slate-300 border-b border-slate-800 relative z-20">
             <div className="max-w-6xl mx-auto px-4 text-center">
               <h3 className="text-sm font-bold uppercase tracking-widest text-cyan-500 mb-4">Developed By Our Team</h3>
-              {/* FIX: x-stagger must wrap children directly — moved to a div wrapper */}
               <div className="flex flex-wrap justify-center gap-x-8 gap-y-2 text-lg font-medium x-stagger">
                 <span>Fatih Zahran</span>
                 <span>Noel Alexander Hartono</span>
@@ -669,17 +699,17 @@
                 <ul className="space-y-4">
                   {[
                     { n:'01', title:'1. Position Barrier', desc:'Place the wedge flood barrier near the target riverbank or drainage overflow containment zone. Secure structural brackets on reinforced bedrock.',
-                      icon:<svg className="w-16 h-16 text-cyan-400" viewBox="0 0 64 64" fill="none" stroke="currentColor"><polygon points="12,48 40,48 12,20" strokeWidth="1.5" strokeDasharray="2,2" /><polygon points="16,48 40,48 16,24" strokeWidth="2" /><line x1="8" y1="48" x2="56" y2="48" strokeWidth="2" /><line x1="20" y1="48" x2="20" y2="56" strokeWidth="1.5" /><line x1="32" y1="48" x2="32" y2="56" strokeWidth="1.5" /></svg> },
+                      icon:<img src="step1.jpg" alt="Position Barrier" className="w-48 h-48 object-cover rounded-xl" /> },
                     { n:'02', title:'2. Connect Pipes', desc:'Ensure the subsurface drainage and diversion pipe fittings are securely sealed and properly aligned with the generator turbine inlet.',
-                      icon:<svg className="w-16 h-16 text-cyan-400" viewBox="0 0 64 64" fill="none" stroke="currentColor"><path d="M8,24 L40,24 A8,8 0 0,1 48,32 L48,56" strokeWidth="2" /><path d="M16,16 L40,16 A16,16 0 0,1 56,32 L56,56" strokeWidth="1.5" strokeDasharray="3,2" /><rect x="42" y="44" width="12" height="4" rx="1" fill="currentColor" opacity="0.3" strokeWidth="1" /></svg> },
+                      icon:<img src="step2.jpg" alt="Connect Pipes" className="w-48 h-48 object-cover rounded-xl" /> },
                     { n:'03', title:'3. Activate Sensors', desc:'Power up the electronic telemetry system and activate pressure/depth sensors on the wet side. Calibrate zero-offset parameters.',
-                      icon:<svg className="w-16 h-16 text-cyan-400" viewBox="0 0 64 64" fill="none" stroke="currentColor"><rect x="24" y="28" width="16" height="24" rx="2" strokeWidth="2" /><circle cx="32" cy="40" r="3" strokeWidth="1.5" /><path d="M20,16 Q32,4 44,16" strokeWidth="1.5" className="animate-pulse" /><path d="M24,20 Q32,10 40,20" strokeWidth="1" strokeDasharray="2,1" /></svg> },
+                      icon:<img src="step3.jpg" alt="Activate Sensors" className="w-48 h-48 object-cover rounded-xl" /> },
                     { n:'04', title:'4. Monitor Levels', desc:'Continuously track water pressure metrics and telemetry dashboard status for normal operation. Configure critical warning triggers.',
-                      icon:<svg className="w-16 h-16 text-cyan-400" viewBox="0 0 64 64" fill="none" stroke="currentColor"><rect x="10" y="16" width="44" height="32" rx="4" strokeWidth="2" /><path d="M16,36 L24,28 L32,38 L40,24 L48,34" strokeWidth="2" /><line x1="10" y1="40" x2="54" y2="40" strokeWidth="1" strokeDasharray="2,2" /></svg> },
+                      icon:<img src="step4.jpg" alt="Monitor Levels" className="w-48 h-48 object-cover rounded-xl" /> },
                     { n:'05', title:'5. Automatic Response', desc:'Allow the gate valve to open dynamically as hydrostatic pressure exceeds critical set boundaries. Ensure fast and frictionless actuation.',
-                      icon:<svg className="w-16 h-16 text-cyan-400" viewBox="0 0 64 64" fill="none" stroke="currentColor"><circle cx="32" cy="32" r="20" strokeWidth="2" /><line x1="32" y1="12" x2="32" y2="52" strokeWidth="2" /><line x1="12" y1="32" x2="52" y2="32" strokeWidth="2" /><path d="M46,24 A16,16 0 0,1 40,40" strokeWidth="1.5" strokeLinecap="round" className="animate-spin" style={{transformOrigin:'32px 32px',animationDuration:'4s'}} /></svg> },
+                      icon:<img src="step5.jpg" alt="Automatic Response" className="w-48 h-48 object-cover rounded-xl" /> },
                     { n:'06', title:'6. Secure Water Flow', desc:'Ensure excess flow discharges smoothly into designated safe waterways or the active generation station to avoid bank erosion.',
-                      icon:<svg className="w-16 h-16 text-cyan-400" viewBox="0 0 64 64" fill="none" stroke="currentColor"><path d="M8,20 Q24,36 40,20 T72,20" strokeWidth="2" className="animate-pulse" /><path d="M8,30 Q24,46 40,30 T72,30" strokeWidth="1.5" opacity="0.6" strokeDasharray="4,2" /><circle cx="56" cy="48" r="4" strokeWidth="1.5" /></svg> },
+                      icon:<img src="step6.jpg" alt="Secure Water Flow" className="w-48 h-48 object-cover rounded-xl" /> },
                   ].map((s, i) => (
                     <li key={i} className="border-b border-slate-800/80 pb-6 pt-2 cursor-pointer group" onClick={() => setOpenSetup(openSetup === i ? null : i)}>
                       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -687,15 +717,15 @@
                           <span className="text-cyan-500 font-mono text-sm font-semibold">{s.n}</span>
                           <h4 className="font-bold text-white text-lg group-hover:text-cyan-400 transition-colors">{s.title}</h4>
                         </div>
-                        <div className="flex items-center gap-4">
-                          <div className={`hidden sm:block p-2 bg-slate-950/80 rounded-xl border border-cyan-500/20 transition-all duration-300 ${openSetup === i ? 'opacity-100 scale-100 border-cyan-500/40 shadow-[0_0_15px_rgba(34,211,238,0.2)]' : 'opacity-40 scale-95'}`}>
+                        <svg className={`w-5 h-5 text-slate-500 transition-transform duration-300 flex-shrink-0 ${openSetup === i ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
+                      </div>
+                      <div className={`overflow-hidden transition-all duration-500 ease-in-out ${openSetup === i ? 'max-h-[500px] opacity-100 mt-4' : 'max-h-0 opacity-0'}`}>
+                        <div className="flex flex-col sm:flex-row items-center gap-8 pl-10 pr-4 pb-2">
+                          <p className="text-slate-400 text-sm leading-relaxed flex-1">{s.desc}</p>
+                          <div className="flex-shrink-0 p-3 bg-slate-950/80 rounded-2xl border border-cyan-500/30 shadow-[0_0_15px_rgba(34,211,238,0.2)]">
                             {s.icon}
                           </div>
-                          <svg className={`w-5 h-5 text-slate-500 transition-transform duration-300 ${openSetup === i ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
                         </div>
-                      </div>
-                      <div className={`overflow-hidden transition-all duration-500 ease-in-out ${openSetup === i ? 'max-h-40 opacity-100 mt-4' : 'max-h-0 opacity-0'}`}>
-                        <p className="text-slate-400 text-sm leading-relaxed pl-10 pr-4">{s.desc}</p>
                       </div>
                     </li>
                   ))}
@@ -705,7 +735,7 @@
           </section>
           
           {/* SIMULATION */}
-          <section id="simulation" className="py-16 bg-slate-950 border-t border-b border-slate-900 scroll-mt-6 relative z-20">
+          <section id="simulation" className="py-16 bg-slate-950 border-t border-slate-900 scroll-mt-6 relative z-20">
             <div className="max-w-7xl mx-auto px-4">
               <div className="mb-10 text-center" data-rev="up">
                 <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">System Workflow Simulation (Cross-Section)</h2>
@@ -871,9 +901,44 @@
               </div>
             </div>
           </section>
+
+          {/* SYSTEM WARNINGS & TROUBLESHOOTING */}
+          <section id="sec-warnings" className="py-20 px-4 max-w-7xl mx-auto relative z-20 border-t border-slate-900">
+            <div className="text-center mb-16" data-rev="up">
+              <h2 className="text-4xl font-bold text-white mb-4 x-underline-anim">System Warnings &amp; Troubleshooting</h2>
+              <p className="text-lg text-slate-400 max-w-3xl mx-auto">Common issues, their root causes, and recommended solutions to maintain optimal system performance.</p>
+            </div>
+            <div className="grid md:grid-cols-3 gap-8">
+              {warningsData.map((warn, i) => (
+                <div key={i} data-rev="up" style={{transitionDelay:(i*150)+'ms'}} className={`bg-slate-900/60 p-8 rounded-2xl border-t-4 ${warn.colors} shadow-lg hover:-translate-y-2 transition-transform relative overflow-hidden group`}>
+                  <div className={`absolute top-4 right-4 opacity-10 ${warn.textIcon} group-hover:scale-110 transition-transform duration-500 pointer-events-none`}>
+                    <svg className="w-24 h-24" fill="none" stroke="currentColor" viewBox="0 0 24 24">{warn.icon}</svg>
+                  </div>
+                  <div className={`w-14 h-14 ${warn.bg} ${warn.textIcon} rounded-xl flex items-center justify-center mb-6`}>
+                    <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">{warn.icon}</svg>
+                  </div>
+                  <h3 className="font-bold text-xl mb-6 text-white leading-tight">{warn.title}</h3>
+                  <div className="mb-5 bg-slate-950/50 p-4 rounded-lg border border-slate-800">
+                    <span className={`text-xs font-bold uppercase tracking-wider ${warn.textTitle} block mb-2 flex items-center gap-2`}>
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                      Cause
+                    </span>
+                    <p className="text-slate-400 text-sm leading-relaxed">{warn.cause}</p>
+                  </div>
+                  <div className="bg-slate-950/50 p-4 rounded-lg border border-slate-800">
+                    <span className="text-xs font-bold uppercase tracking-wider text-cyan-400 block mb-2 flex items-center gap-2">
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                      Solution
+                    </span>
+                    <p className="text-slate-300 text-sm leading-relaxed">{warn.solution}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </section>
           
           {/* IMPACT */}
-          <section id="sec-impact" className="py-20 bg-slate-950 px-4 relative z-20">
+          <section id="sec-impact" className="py-20 bg-slate-950 px-4 relative z-20 border-t border-slate-900">
             <div className="max-w-5xl mx-auto text-center">
               <h2 className="text-3xl font-bold mb-6 text-white uppercase tracking-wide x-underline-anim">The Impact</h2>
               <p className="text-lg text-slate-300 mb-12 max-w-2xl mx-auto">Flooding is a major environmental challenge that threatens communities and infrastructure. Our invention provides a 3-in-1 solution:</p>
@@ -896,7 +961,7 @@
           </section>
 
           {/* VIEW IMPACT PHOTO BUTTON */}
-          <div className="flex justify-center my-12">
+          <div className="flex justify-center mb-16 mt-4 relative z-20">
             <button 
               onClick={() => { setIpScale(1); setIpPos({ x:0, y:0 }); setIsImpactPhotoOpen(true); }}
               className="group relative px-8 py-4 bg-slate-900 border border-cyan-500/40 rounded-xl overflow-hidden shadow-[0_0_20px_rgba(6,182,212,0.15)] hover:shadow-[0_0_35px_rgba(34,211,238,0.3)] transition-all duration-300 transform hover:-translate-y-1 flex items-center gap-3"
@@ -1078,6 +1143,7 @@
           { id:'sec-problem', label:'Problem' },
           { id:'sec-setup',   label:'Setup' },
           { id:'simulation',  label:'Simulation' },
+          { id:'sec-warnings',label:'Warnings' },
           { id:'sec-impact',  label:'Impact' },
           { id:'sec-footer',  label:'Closing' },
         ];
